@@ -1,6 +1,6 @@
 //utf-8
 #include<math.h>
-#define ext struct extendint
+#define ext extendint
 /*
 'maxlength' represents int length limit
 while every 1024 digits take 1KB of storage
@@ -25,7 +25,7 @@ void print_(ext t){//print extendint
 }
 ext operator~(ext t){//return -t
     ext tem=t;
-    if(tem.s[1]||tem.pst>1)tem.pst=~tem.pst+1;
+    if(tem.s[1]||abs(tem.pst)>1)tem.pst=~tem.pst+1;
     return tem;
 }
 ext trans_(long long t){//return t as extendint
@@ -118,15 +118,20 @@ ext operator*(ext a,ext b){
 ext operator*=(ext&a,ext b){
     return a=a*b;
 }
-ext divassist(ext &a,ext b,ll k){//assist function for div_
+ext divassist(ext&a,ext b,ll k){//assist function for div_
     ext t={{0},0};
     if(!(a>b)){t.pst=k-1;return t;}
     t=divassist(a,b*trans_(10),k+1);
-    while(a>b)a=a-b,t.s[k]++;
+    while(a>b)a-=b,t.s[k]++;
     return t;
 }
 ext operator/(ext a,ext b){
-    return divassist(a,b,1);
+    ll f=1;ext t={{0},1};
+    if(!b.s[1]&&b.pst==1)return t;
+    if(a.pst<0)f=~f+1,a.pst=~a.pst+1;
+    if(b.pst<0)f=~f+1,b.pst=~b.pst+1;
+    t=divassist(a,b,1);
+    t.pst*=f;return t;
 }
 ext operator/=(ext&a,ext b){
     return a=a/b;
@@ -135,4 +140,15 @@ ext operator^(ext a,ll b){//return pow(a,b)
     ext t=trans_(1);
     for(;b;a=a*a,b>>=1)if(b&1)t=t*a;
     return t;
+}
+ext operator%(ext a,ext b){
+    if(!b.s[1]&&b.pst==1){ext tem={{0},1};return tem;}
+    ll f=1;
+    if(a.pst<0)f=~f+1,a.pst=~a.pst+1;
+    if(b.pst<0)b.pst=~b.pst+1;
+    divassist(a,b,1);
+    a.pst*=-1;return a;
+}
+ext operator%=(ext&a,ext b){
+    return a=a%b;
 }

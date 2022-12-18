@@ -1,5 +1,4 @@
 //c99+ utf-8
-#include<stdio.h>
 #define ext struct extendint
 /*
 'maxlength' represents int length limit
@@ -11,6 +10,8 @@ struct extendint{
     char s[maxlength];
     ll pst;
 };
+ll abs_(ll a);
+inline ll abs_(ll a){return a>0?a:-a;}
 ext read_(){//read extendint
     ext t={{0},0};char c=getchar();ll f=1,k=0;
     while(c<'0'||c>'9'){if(c=='-')f=-1;c=getchar();}
@@ -25,12 +26,12 @@ void print_(ext t){//print extendint
 }
 ext inverse_(ext t){//return -t
     ext tem=t;
-    if(tem.s[1]||tem.pst>1)tem.pst=~tem.pst+1;
+    if(tem.s[1]||abs_(tem.pst)>1)tem.pst=~tem.pst+1;
     return tem;
 }
 ll cmp_(ext a,ext b){//return a<b:0 a>b:1 a==b:2 as int
     if(a.pst!=b.pst)return a.pst>b.pst;
-    ll t=a.pst>0?a.pst:-a.pst;
+    ll t=abs_(a.pst);
     while(a.s[t]==b.s[t]&&t)t--;
     if(!t)return 2;
     return (a.s[t]>b.s[t])^(a.pst<0);
@@ -64,7 +65,7 @@ ext minus_(ext a,ext b){//return a-b
     return add_(a,inverse_(b));
 }
 ext mul_(ext a,ext b){//return a*b
-    ext t={{0},0};ll k1=a.pst>0?a.pst:-a.pst,k2=b.pst>0?b.pst:-b.pst,k=k1+k2;
+    ext t={{0},0};ll k1=abs_(a.pst),k2=abs_(b.pst),k=k1+k2;
     for(ll i=1;i<=k1;i++)
         for(ll j=1;j<=k2;j++){
             t.s[i+j-1]+=a.s[i]*b.s[j];
@@ -84,10 +85,23 @@ ext divassist(ext*a,ext b,ll k){//assist function for div_
     return t;
 }
 ext div_(ext a,ext b){//return a//b
-    return divassist(&a,b,1);
+    ll f=1;ext t={{0},1};
+    if(!b.s[1]&&b.pst==1)return t;
+    if(a.pst<0)f=~f+1,a.pst=~a.pst+1;
+    if(b.pst<0)f=~f+1,b.pst=~b.pst+1;
+    t=divassist(&a,b,1);
+    t.pst*=f;return t;
 }
 ext fpower_(ext a,ll b){//return a^b
     ext t=trans_(1);
     for(;b;a=mul_(a,a),b>>=1)if(b&2)t=mul_(t,a);
     return t;
+}
+ext mod_(ext a,ext b){
+    if(!b.s[1]&&b.pst==1){ext tem={{0},1};return tem;}
+    ll f=1;
+    if(a.pst<0)f=~f+1,a.pst=~a.pst+1;
+    if(b.pst<0)b.pst=~b.pst+1;
+    divassist(&a,b,1);
+    a.pst*=-1;return a;
 }
