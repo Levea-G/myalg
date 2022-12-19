@@ -37,11 +37,28 @@ ll cmp_(ext a,ext b){//return a<b:0 a>b:1 a==b:2 as int
     return (a.s[t]>b.s[t])^(a.pst<0);
 }
 ext trans_(long long t){//return t as extendint
-    ext tem={{0},0};ll k=0;
-    if(!t){tem.pst=1;return tem;}
+    ext tem={{0},1};ll k=0,f=0;
+    if(!t)return tem;
+    if(t<0)f++,t=~t+1;
     while(t)tem.s[++k]=t%10,t/=10;
-    tem.pst=t<0?-k:k;
+    tem.pst=f?-k:k;
     return tem;
+}
+ext mul10_(ext t){//return t*10
+    if(!t.s[1]&&t.pst==1)return t;
+    ll k=t.pst,f=0;
+    if(k<0)k=~k+1,f++;
+    for(ll i=k+=1;i;i--)t.s[i]=t.s[i-1];
+    t.pst=f?~k+1:k;
+    return t;
+}
+ext div10_(ext t){//return t//10
+    if(abs_(t.pst)<=1){t.s[1]=0,t.pst=1;return t;}
+    ll k=t.pst,f=0;
+    if(k<0)k=~k+1,f++;
+    for(ll i=1;i<=k;i++)t.s[i]=t.s[i+1];
+    t.pst=f?~k+2:k-1;
+    return t;
 }
 ext add_(ext a,ext b){//return a+b
     ext t={{0},0};ll k1=a.pst,k2=b.pst;
@@ -77,11 +94,12 @@ ext mul_(ext a,ext b){//return a*b
     t.pst=k;
     return t;
 }
-ext divassist(ext*a,ext b,ll k){//assist function for div_
-    ext t={{0},0};
-    if(!cmp_(*a,b)){t.pst=k-1;return t;}
-    t=divassist(a,mul_(b,trans_(10)),k+1);
-    while(cmp_(*a,b))*a=minus_(*a,b),t.s[k]++;
+ext divassist(ext*a,ext b){//assist function for div_
+    ext t={{0},1};ll k=1;
+    while(cmp_(*a,b))b=mul10_(b),k++;
+    if(k<2)return t;
+    t.pst=k-1;
+    while(k){while(cmp_(*a,b))*a=minus_(*a,b),t.s[k]++;b=div10_(b);k--;}
     return t;
 }
 ext div_(ext a,ext b){//return a//b
@@ -89,19 +107,19 @@ ext div_(ext a,ext b){//return a//b
     if(!b.s[1]&&b.pst==1)return t;
     if(a.pst<0)f=~f+1,a.pst=~a.pst+1;
     if(b.pst<0)f=~f+1,b.pst=~b.pst+1;
-    t=divassist(&a,b,1);
-    t.pst*=f;return t;
+    t=divassist(&a,b);
+    if(abs_(t.pst)>1||t.s[1])t.pst*=f;return t;
 }
 ext fpower_(ext a,ll b){//return a^b
     ext t=trans_(1);
-    for(;b;a=mul_(a,a),b>>=1)if(b&2)t=mul_(t,a);
+    for(;b>0;a=mul_(a,a),b>>=1)if(b&2)t=mul_(t,a);
     return t;
 }
 ext mod_(ext a,ext b){
-    if(!b.s[1]&&b.pst==1){ext tem={{0},1};return tem;}
+    if(!b.s[1]&&b.pst==1)return trans_(0);
     ll f=1;
     if(a.pst<0)f=~f+1,a.pst=~a.pst+1;
     if(b.pst<0)b.pst=~b.pst+1;
-    divassist(&a,b,1);
-    a.pst*=-1;return a;
+    divassist(&a,b);
+    a.pst*=f;return a;
 }
