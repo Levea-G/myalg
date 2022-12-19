@@ -31,7 +31,7 @@ ext trans_(long long t){//return t as extendint
     tem.pst=f?-k:k;
     return tem;
 }
-ext operator-(ext t){//return -t
+ext operator-(ext t){
     ext tem=t;
     if(tem.s[1]||abs(tem.pst)>1)tem.pst=~tem.pst+1;
     return tem;
@@ -108,11 +108,13 @@ ext operator+(ext a,ext b){
     for(ll i=1;i<=k;i++)t.s[i]=a.s[i]+b.s[i];
     while(!t.s[k]&&k>1)k--;
     if(t.s[k]<0){
-        t.s[k]=~t.s[k],f=-1,t.s[1]--;
+        t.s[k]=~t.s[k],f=-1;
         for(ll i=k-1;i;i--)t.s[i]=9-t.s[i];
+        t.s[1]++;
     }
     for(ll i=1;i<=k;i++){
-        if(t.s[i]>9)t.s[i]-=10,t.s[i+1]++;
+        if(t.s[i]>19)t.s[i]-=20,t.s[i+1]+=2;
+        else if(t.s[i]>9)t.s[i]-=10,t.s[i+1]++;
         else if(t.s[i]<0)t.s[i]+=10,t.s[i+1]--;
     }
     for(k++;!t.s[k]&&k>1;k--);t.pst=k*f;
@@ -143,7 +145,7 @@ ext operator*(ext a,ext b){
 ext operator*=(ext&a,ext b){
     return a=a*b;
 }
-ext divassist(ext&a,ext b){//assist function for div_
+ext divassist(ext&a,ext b){//assist function for divide and mod
     ext t={{0},1};ll k=1;
     while(a>=b)b<<=1,k++;
     if(k<2)return t;

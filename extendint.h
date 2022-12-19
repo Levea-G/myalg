@@ -4,7 +4,7 @@
 'maxlength' represents int length limit
 while every 1024 digits take 1KB of storage
 please be careful when modifying this
-*/#define maxlength 4005
+*/#define maxlength 2005
 typedef int ll;
 struct extendint{
     char s[maxlength];
@@ -68,11 +68,13 @@ ext add_(ext a,ext b){//return a+b
     for(ll i=1;i<=k;i++)t.s[i]=a.s[i]+b.s[i];
     while(!t.s[k]&&k>1)k--;
     if(t.s[k]<0){
-        t.s[k]=~t.s[k],f=-1,t.s[1]--;
+        t.s[k]=~t.s[k],f=-1;
         for(ll i=k-1;i;i--)t.s[i]=9-t.s[i];
+        t.s[1]++;
     }
     for(ll i=1;i<=k;i++){
-        if(t.s[i]>9)t.s[i]-=10,t.s[i+1]++;
+        if(t.s[i]>19)t.s[i]-=20,t.s[i+1]+=2;
+        else if(t.s[i]>9)t.s[i]-=10,t.s[i+1]++;
         else if(t.s[i]<0)t.s[i]+=10,t.s[i+1]--;
     }
     for(k++;!t.s[k]&&k>1;k--);t.pst=k*f;
