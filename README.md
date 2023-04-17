@@ -13,7 +13,7 @@ note:1. fft or ntt are NOT used in this algorithm, which means it might take hug
 3. in my ide, errors pop up when I set the 'maxlength' variable too big (about 5e4), I guess there's some stack overflow issue, so be really carefull when modifying this  
 4. here's an example code for Chris.h  
 <code>Chris\*tree=(Chris\*)calloc(1,sizeof(Chris);
-  \_init\_(tree,cmp,pnode);//cmp and pnodes are two functions defined by user
+  \_init\_(tree,cmp,pnode);//cmp and pnodes are two functions defined by user, indicating how the keys should be compared and printed
   //your operations
   f_all(tree->rt);//free all the nodes in the tree
   free(tree);//free the pointer aiming the tree itself
