@@ -19,4 +19,4 @@ note:1. fft or ntt are NOT used in this algorithm, which means it might take hug
   f_all(tree->rt);//free all the nodes in the tree
   free(tree);//free the pointer aiming the tree itself
 </code>
-5. remind that if you use Chris.h, you won't be able to define "struct node" or "struct Chris" in your own files, which will cause redefinitions
+5. remind that if you use Chris.h, you won't be able to define "struct node" or "struct Chris" in your own files, which will cause redefinitions, same to other funcs in the file, but you can consider changing their names yourself
