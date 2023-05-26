@@ -4,7 +4,6 @@
 typedef struct Chris Chris;
 typedef struct node node;
 typedef int ll;
-ll ct;
 struct node{
     bool rb;
     ll ct,act;
