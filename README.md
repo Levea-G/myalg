@@ -24,6 +24,6 @@ note:1. fft or ntt are NOT used in extendint algorithm, which means it might tak
 &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(ll i=0;i<10;i++)temp->name[i]=rand()%26+97;
 &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;insert(t,temp); // insert it into the structure
 &ensp;&ensp;&ensp;}
-&ensp;&ensp;&ensp;view(t,"\n",&p_) // checkup all the elements in the structure, the second param marks the separate string, the third param is optional, which temporarily replaces the default print method of t if given as the method to print within the function
+&ensp;&ensp;&ensp;view(t,"\n",&p_); // checkup all the elements in the structure, the second param marks the separate string, the third param is optional, which temporarily replaces the default print method of t if given as the method to print within the function
 &ensp;&ensp;&ensp;clear(t); // release all the memory, idk if gcc will do it for me, but i choose to be carefull
 </code>5. remind that if you use Chris.h, you won't be able to define "struct node" or "struct Chris" in your own files, which will cause redefinitions, same to other funcs in the file, but you can consider changing their names yourself
