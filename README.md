@@ -9,7 +9,7 @@ DateType is a pre-defined datatype which presents a date in the form of yyyy-mm-
 Chris.h is a header for C++ users, featuring rb-tree structure which adjusts memory usage according to current node count, meanwhile being twice as fast as stl set when inserting and hundred times faster than stl set when freeing the memory
 
 note:  
-1. extendint:
+1. extendint:  
 &ensp;&ensp;&ensp;fft or ntt is NOT used in extendint algorithm, which means it might take huge amount of time calculationg big numbers, this might be optimized some day when I actually learn them  
 &ensp;&ensp;&ensp;due to my ignorance, bit opertations can yet be realized, this might NOT get optimized since i dont know how  
 &ensp;&ensp;&ensp;in my ide, errors pop up when I set the 'maxlength' variable too big (about 5e4), I guess there's some stack overflow issue, so be really carefull when modifying this  
