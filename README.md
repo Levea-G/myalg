@@ -23,3 +23,4 @@ note:
 &ensp;&ensp;&ensp;To use this structure, there are several requirements that have to be met:  
 &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1: the class of the key of the tree must overload '>' and '==' operator and should not make a change to them at any time while the tree still exists.  
 &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2: the class of the key of the tree must have a default generation method, for example if the class name is 'key' and has a integer member 'k', then you got to have a function like key():k(0){} or at least key(){} in the class declaration, otherwise a compiler error will pop up
+&ensp;&ensp;&ensp;At present the structure Chris can yet be compared to each other, so it can't be used like Chris<Chris<int>>, due to lack of comparing method
