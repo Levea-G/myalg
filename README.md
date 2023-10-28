@@ -22,4 +22,4 @@ note:
 &ensp;&ensp;&ensp;Output operation in the tree uses std::cout, so it's recommended to overload the '<<' operator in key class if you want to use 'view' method, and feel free to use ios::sync_with_stdio(0) to speed up.  
 &ensp;&ensp;&ensp;To use this structure, there are several requirements that have to be met:  
 &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1: the class of the key of the tree must overload '>' and '==' operator and should not make a change to them at any time while the tree still exists.  
-&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2: the class of the key of the tree must have a default generation method, for example if the class name is key and has a member k, then you got to have a function like key():k(0){} or at least key(){} in the class declaration, otherwise a compiler error will pop up
+&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2: the class of the key of the tree must have a default generation method, for example if the class name is 'key' and has a integer member 'k', then you got to have a function like key():k(0){} or at least key(){} in the class declaration, otherwise a compiler error will pop up
