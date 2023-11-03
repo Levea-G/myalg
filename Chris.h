@@ -1,7 +1,7 @@
-namespace Chris{
-    typedef int ll;
+namespace _Chris{
+typedef int ll;
 template<class key>
-ll __default_extern__(key a,key b){
+ll __default_extern__(const key&a,const key&b){
     if(a==b)return 2;
     if(a>b)return 1;
     return 0;
@@ -11,7 +11,7 @@ class Chris{
 public:
     class iterator{
     private:
-        ll x;Chris*t;
+        ll x;const Chris*t;
         bool __forward__(){
             if(!x)return 1;
             if(t->tr[x].s[1]){
@@ -37,10 +37,10 @@ public:
             return 1;
         }
     public:
-        iterator(Chris*t,ll x):t(t),x(x){}
+        iterator(const Chris*t,ll x):t(t),x(x){}
         bool forward(){return __forward__();}
         bool backward(){return __backward__();}
-        key get_key(){return t->tr[x]._key;}
+        key&get_key(){return t->tr[x]._key;}
         ll get_count(){return t->tr[x].ct;}
         void operator++(ll){__forward__();}
         void operator--(ll){__backward__();}
@@ -56,11 +56,11 @@ public:
         }
         void operator+=(ll k){for(ll i=0;i<k;i++)__forward__();}
         void operator-=(ll k){for(ll i=0;i<k;i++)__backward__();}
-        bool operator==(iterator _I){return x==_I.x;}
-        bool operator!=(iterator _I){return x!=_I.x;}
+        bool operator==(iterator _I){return t==_I.t&&x==_I.x;}
+        bool operator!=(iterator _I){return t!=_I.t||x!=_I.x;}
         bool empty(){return x==0;}
     };
-    Chris(bool display=0,double shrink_threshold=0.67,bool unique=0,ll(*compare)(key,key)=&__default_extern__){
+    Chris(bool display=0,double shrink_threshold=0.67,bool unique=0,ll(*compare)(const key&,const key&)=&__default_extern__){
         tr=new node[2];
         bin=new ll[2]{0,1};
         disp=display;uni=unique;
@@ -69,26 +69,30 @@ public:
         else s_thresh=0.67;
         if(disp)std::cout<<"tree built"<<std::endl;
     }
+    Chris(const Chris&b){
+        disp=b.disp,s_thresh=b.s_thresh,uni=b.uni,__cmp__=b.__cmp__,size=b.size,top=b.top;
+        tr=new node[size+1];bin=new ll[size+1];
+        ll cap=size-top;
+        for(ll i=0;i<=size;i++)tr[i]=b.tr[i];
+        for(ll i=1;i<=top;i++)bin[i]=b.bin[i];
+    }
     ~Chris(){
-        if(lock){lock=0;return;}
-        delete[] tr;
-        delete[] bin;
+        delete[] tr;delete[] bin;
         if(disp)std::cout<<"tree deleted"<<std::endl;
     }
-    bool insert(key v){return __insert__(v);}
-    void remove(key v){__delete__(v);}
-    void clear(bool do_shrink=1){__clear__(do_shrink);}
+    bool insert(const key&v){return __insert__(v);}
+    void remove(const key&v){__delete__(v);}
+    bool clear(bool do_shrink=1){return __clear__(do_shrink);}
     ll len(){return tr[tr[0].s[1]].act;}
-    ll find(key v){return __rank__(v);}
+    ll find(const key&v){return __rank__(v);}
     key*operator [](ll k){return __kth__(k+1);}
-    key*upper_bound(key v){return __upperbound__(v);}
-    key*lower_bound(key v){return __lowerbound__(v);}
+    key*upper_bound(const key&v){return __upperbound__(v);}
+    key*lower_bound(const key&v){return __lowerbound__(v);}
     void view(const char*sep="",const char*end="",void(*print)(key)=NULL){__view__(sep,end,print);}
-    iterator begin(){return __begin__();}
-    iterator end(){return __end__();}
-    iterator start_from(ll k){return __startfrom__(k);}
-    bool operator<(Chris b){
-        b.lock=1;
+    iterator begin()const{return __begin__();}
+    iterator end()const{return __end__();}
+    iterator start_from(ll k)const{return __startfrom__(k);}
+    bool operator<(const Chris&b)const{
         iterator ita=begin(),itb=b.begin();bool m=ita.empty(),n=itb.empty(); 
         while((m|n)==0){
             ll j=__cmp__(ita.get_key(),itb.get_key());
@@ -98,8 +102,7 @@ public:
         if(m&n)return 0;
         return m;
     }
-    bool operator>(Chris b){
-        b.lock=1;
+    bool operator>(const Chris&b)const{
         iterator ita=begin(),itb=b.begin();bool m=ita.empty(),n=itb.empty(); 
         while((m|n)==0){
             ll j=__cmp__(ita.get_key(),itb.get_key());
@@ -109,8 +112,7 @@ public:
         if(m&n)return 0;
         return n;
     }
-    bool operator==(Chris b){
-        b.lock=1;
+    bool operator==(const Chris&b)const{
         iterator ita=begin(),itb=b.begin();bool m=ita.empty(),n=itb.empty(); 
         while((m|n)==0){
             ll j=__cmp__(ita.get_key(),itb.get_key());
@@ -120,25 +122,39 @@ public:
         if(m&n)return 1;
         return 0;
     }
-    void free(){
-        lock=0;
-        if(typeid(key)!=typeid(Chris))return;
-        //
+    bool operator!=(const Chris&b)const{
+        iterator ita=begin(),itb=b.begin();bool m=ita.empty(),n=itb.empty(); 
+        while((m|n)==0){
+            ll j=__cmp__(ita.get_key(),itb.get_key());
+            if(j==2){m=ita.forward(),n=itb.forward();continue;}
+            return 1;
+        }
+        if(m&n)return 0;
+        return 1;
     }
+    void operator=(const Chris&b){
+        disp=b.disp,s_thresh=b.s_thresh,uni=b.uni,__cmp__=b.__cmp__,size=b.size,top=b.top;
+        delete[] tr;delete[] bin;
+        tr=new node[size+1];bin=new ll[size+1];
+        ll cap=size-top;
+        for(ll i=0;i<=size;i++)tr[i]=b.tr[i];
+        for(ll i=1;i<=top;i++)bin[i]=b.bin[i];
+    }
+    ll key_compare(const key&a,const key&b)const{return __cmp__(a,b);}
 private:
     class node{
     public:
         node():rb(0),ct(0),act(0),s{0,0},f(0){}
-        node(ll f,key v):rb(1),ct(1),act(1),s{0,0},f(f),_key(v){}
+        node(ll f,const key&v):rb(1),ct(1),act(1),s{0,0},f(f),_key(v){}
         bool rb;
         ll ct,act,s[2],f;
         key _key;
     };
     ll size=1,*bin,top=1;
     node*tr;
-    bool disp,uni,lock=0;
+    bool disp,uni;
     double s_thresh;
-    bool __id__(ll x){return tr[tr[x].f].s[1]==x;}
+    bool __id__(ll x)const{return tr[tr[x].f].s[1]==x;}
     void __update__(ll x){tr[x].act=tr[x].ct+tr[tr[x].s[0]].act+tr[tr[x].s[1]].act;}
     void __rotate__(ll x){
         bool j=__id__(x);ll y=tr[x].f,z=tr[y].f,w=tr[x].s[j^1];
@@ -158,7 +174,7 @@ private:
         }
         else size<<=1;
         for(ll i=0;i<=cap;i++)temp[i]=tr[i];
-        for(ll i=cap+1;i<=size;i++)tbin[++top]=i;
+        for(ll i=size;i>cap;i--)tbin[++top]=i;
         delete[] tr;delete[] bin;
         tr=temp;bin=tbin;
         if(disp)std::cout<<size<<std::endl;
@@ -184,12 +200,12 @@ private:
             temp->s[1]=nct;
         }
         size>>=1,top=0;
-        for(ll i=nct+1;i<=size;i++)tbin[++top]=i;
+        for(ll i=size;i>nct;i--)tbin[++top]=i;
         delete[] tr;delete[] bin;
         tr=temp;bin=tbin;
         if(disp)std::cout<<size<<std::endl;
     }
-    bool __insert__(key v){
+    bool __insert__(const key&v){
         if(!tr[0].s[1]){
             ll n=bin[top--];
             tr[0].s[1]=n;tr[n]=node(0,v);
@@ -205,7 +221,6 @@ private:
                 if(uni)for(;x;x=tr[x].f){tr[x].act--;return 1;}
                 else {tr[x].ct++;return 0;}
             }
-            // bool j=v>tr[x]._key;
             if(!tr[x].s[j]){
                 ll n=bin[top--];
                 tr[x].s[j]=n;tr[n]=node(x,v);
@@ -226,7 +241,7 @@ private:
         tr[tr[0].s[1]].rb=0;
         return 0;
     }
-    void __delete__(key v){
+    void __delete__(const key&v){
         ll x=tr[0].s[1];
         while(1){
             if(!x)return;
@@ -281,7 +296,7 @@ private:
         }
         return NULL;
     }
-    ll __rank__(key v){
+    ll __rank__(const key&v){
         ll x=tr[0].s[1],otc=0;
         while(x){
             ll j=__cmp__(v,tr[x]._key);
@@ -293,7 +308,7 @@ private:
         }
         return -1;
     }
-    key*__lowerbound__(key v){
+    key*__lowerbound__(const key&v){
         ll x=tr[0].s[1];
         key*otc=NULL;
         while(x){
@@ -302,7 +317,7 @@ private:
         }
         return otc;
     }
-    key*__upperbound__(key v){
+    key*__upperbound__(const key&v){
         ll x=tr[0].s[1];
         key*otc=NULL;
         while(x){
@@ -334,17 +349,17 @@ private:
             std::cout<<end;
         }
     }
-    iterator __begin__(){
+    iterator __begin__()const{
         ll x=tr[0].s[1];
         while(tr[x].s[0])x=tr[x].s[0];
         return iterator(this,x);
     }
-    iterator __end__(){
+    iterator __end__()const{
         ll x=tr[0].s[1];
         while(tr[x].s[1])x=tr[x].s[1];
         return iterator(this,x);
     }
-    iterator __startfrom__(ll k){
+    iterator __startfrom__(ll k)const{
         ll x=tr[0].s[1];
         while(x){
             if(k<=tr[tr[x].s[0]].act){x=tr[x].s[0];continue;}
@@ -354,6 +369,6 @@ private:
         }
         return iterator(this,0);
     }
-    ll(*__cmp__)(key,key);
+    ll(*__cmp__)(const key&,const key&);
 };
 }
