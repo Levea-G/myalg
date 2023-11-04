@@ -132,6 +132,7 @@ public:
         if(m&n)return 0;
         return 1;
     }
+    ll key_compare(const key&a,const key&b)const{return __cmp__(a,b);}
     void operator=(const Chris&b){
         disp=b.disp,s_thresh=b.s_thresh,uni=b.uni,__cmp__=b.__cmp__,size=b.size,top=b.top;
         delete[] tr;delete[] bin;
@@ -140,7 +141,17 @@ public:
         for(ll i=0;i<=size;i++)tr[i]=b.tr[i];
         for(ll i=1;i<=top;i++)bin[i]=b.bin[i];
     }
-    ll key_compare(const key&a,const key&b)const{return __cmp__(a,b);}
+    friend std::ostream&operator<<(std::ostream&outstr,const Chris&a){
+        ll x=a.tr[0].s[1];if(!x)return outstr;
+        outstr1:while(a.tr[x].s[0])x=a.tr[x].s[0];
+        outstr<<a.tr[x]._key<<' '<<a.tr[x].ct<<'\n';
+        outstr2:if(a.tr[x].s[1]){x=a.tr[x].s[1];goto outstr1;}
+        while(a.tr[x].f){
+            bool j=a.__id__(x);x=a.tr[x].f;
+            if(!j){outstr<<a.tr[x]._key<<' '<<a.tr[x].ct<<'\n';goto outstr2;}
+        }
+        return outstr;
+    }
 private:
     class node{
     public:
