@@ -1,10 +1,8 @@
 #include<iostream>
 namespace _Alter{
 template<class key>
-//Multiset like
 class rbtree{
 public:
-    //Read-only Ringed Iterator
     class Iterator{
     public:
         Iterator():x(0),tr(NULL){}
@@ -384,12 +382,20 @@ private:
         return Iterator(*this,0);
     }
     static int __defaultcmp__(const key&a,const key&b){
-        return a==b?2:a>b?1:0;
+        return a<b?0:b<a?1:2;
     }
     static void __defaultprint__(const key&v){std::cout<<v;}
 };
 }
 using namespace _Alter;
 int main(){
-    //
+    int a=clock();
+    rbtree<int>t(1);
+    int b=clock();
+    for(int i=0;i<1000000;i++)t.insert(10);
+    int c=clock();
+    // for(int i=0;i<1000000;i++)t.remove(i);
+    for(int i=0;i<1000000;i++)t.begin().getcount();
+    int d=clock();
+    std::cout<<(b-a)/1000.0<<' '<<(c-b)/1000.0<<' '<<(d-c)/1000.0<<std::endl;
 }
