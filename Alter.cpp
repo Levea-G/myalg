@@ -56,29 +56,30 @@ public:
             return x;
         }
     };
-    multiset(bool do_alloc=0,int(*compare)(const key&,const key&)=&__defaultcmp__){
+    multiset(bool do_alloc=0,int(*compare)(const key&,const key&)=__defaultcmp__){
         __cmp__=compare;
+        used=1;size=4;
         if(do_alloc==0){tr=NULL;return;}
         tr=new node[4];
-        used=1;size=4;
         tr->act=tr->rb=tr->f=tr->s[0]=tr->s[1]=0;
     }
     multiset(const multiset&b){
-        used=b.used;size=b.size;
+        used=b.used;size=b.size;__cmp__=b.__cmp__;
         tr=new node[size];
         for(int i=0;i<used;i++)tr[i]=b.tr[i];
     }
     multiset(multiset&&b){
         tr=b.tr;b.tr=NULL;
         used=b.used;size=b.size;
+        __cmp__=b.__cmp__;
     }
     ~multiset(){
         delete[] tr;tr=NULL;
     }
+    bool reinit(bool do_alloc=1){return __reinit__(do_alloc);}
     bool insert(const key&v){return __insert__(std::forward<const key&>(v));}
     bool insert(key&&v){return __insert__(std::forward<key&&>(v));}
     bool remove(const key&v){return __delete__(v);}
-    bool reinit(bool do_alloc=1){return __reinit__(do_alloc);}
     Iterator operator[](int index)const{return __kth__(index);}
     int find(const key&v)const{return __find__(v);}
     int rfind(const key&v)const{return __rfind__(v);}
@@ -91,57 +92,45 @@ public:
     int count(const key&v){return rfind(v)-find(v)+1;}
     bool operator<(const multiset&b)const{
         if(tr==b.tr)return 0;
-        bool conda=(tr==NULL),condb=(b.tr==NULL);
-        if(conda!=condb)return conda<condb?0:1;
-        Iterator ita=end(),itb=b.end();
-        conda=ita.forward(),condb=itb.forward();
-        while(conda&&condb){
-            int to=__cmp__(ita.getkey(),itb.getkey());
-            if(to==2)conda=ita.forward(),condb=itb.forward();
-            else return to?0:1;
+        if(used!=b.used)return used<b.used;
+        if(tr==NULL||b.tr==NULL)return tr==NULL;
+        Iterator it=end(),itb=b.end();
+        while(it.forward()&&itb.forward()){
+            int to=__cmp__(it.getkey(),itb.getkey());
+            if(to!=2)return to==0;
         }
-        return conda==condb?0:condb;
+        return 0;
     }
     bool operator>(const multiset&b)const{
         if(tr==b.tr)return 0;
-        bool conda=(tr==NULL),condb=(b.tr==NULL);
-        if(conda!=condb)return conda<condb?1:0;
-        Iterator ita=end(),itb=b.end();
-        conda=ita.forward(),condb=itb.forward();
-        while(conda&condb){
-            int to=__cmp__(ita.getkey(),itb.getkey());
-            if(to==2)conda=ita.forward(),condb=itb.forward();
-            else return to?1:0;
+        if(used!=b.used)return used>b.used;
+        if(tr==NULL||b.tr==NULL)return b.tr==NULL;
+        Iterator it=end(),itb=b.end();
+        while(it.forward()&&itb.forward()){
+            int to=__cmp__(it.getkey(),itb.getkey());
+            if(to!=2)return to==1;
         }
-        return conda==condb?0:conda;
+        return 0;
     }
     bool operator==(const multiset&b)const{
         if(tr==b.tr)return 1;
-        bool conda=(tr==NULL),condb=(b.tr==NULL);
-        if(conda!=condb)return 0;
-        Iterator ita=end(),itb=b.end();
-        conda=ita.forward(),condb=itb.forward();
-        while(conda&condb){
-            if(__cmp__(ita.getkey(),itb.getkey())==2)
-                conda=ita.forward(),condb=itb.forward();
-            else return 0;
-        }
-        return conda==condb?1:0;
+        if(used!=b.used)return 0;
+        if(tr==NULL||b.tr==NULL)return 0;
+        Iterator it=end(),itb=b.end();
+        while(it.forward()&&itb.forward())
+            if(__cmp__(it.getkey(),itb.getkey())!=2)return 0;
+        return 1;
     }
     bool operator!=(const multiset&b)const{
         if(tr==b.tr)return 0;
-        bool conda=(tr==NULL),condb=(b.tr==NULL);
-        if(conda!=condb)return 1;
-        Iterator ita=end(),itb=b.end();
-        conda=ita.forward(),condb=itb.forward();
-        while(conda&condb){
-            if(__cmp__(ita.getkey(),itb.getkey())==2)
-                conda=ita.forward(),condb=itb.forward();
-            else return 1;
-        }
-        return conda==condb?0:1;
+        if(used!=b.used)return 1;
+        if(tr==NULL||b.tr==NULL)return 1;
+        Iterator it=end(),itb=b.end();
+        while(it.forward()&&itb.forward())
+            if(__cmp__(it.getkey(),itb.getkey())!=2)return 1;
+        return 0;
     }
-    multiset&operator=(multiset b){
+    multiset&operator=(multiset b)noexcept{
         swap(*this,b);
         return *this;
     }
@@ -150,6 +139,7 @@ public:
         swap(a.used,b.used);
         swap(a.size,b.size);
         swap(a.tr,b.tr);
+        swap(a.__cmp__,b.__cmp__);
     }
     void print(const char*sep="\n",const char*end="",void(*_print)(const key&)=NULL)const{
         Iterator itx=this->end();
@@ -164,16 +154,14 @@ public:
     int cmp(const key&a,const key&b){return __cmp__(a,b);}
     static int selfcmp(const multiset&a,const multiset&b){
         if(a.tr==b.tr)return 2;
-        bool conda=(a.tr==NULL),condb=(b.tr==NULL);
-        if(conda!=condb)return conda<condb?1:0;
+        if(a.used!=b.used)return a.used>b.used;
+        if(a.tr==NULL||b.tr==NULL)return b.tr==NULL;
         Iterator ita=a.end(),itb=b.end();
-        conda=ita.forward(),condb=itb.forward();
-        while(conda&condb){
+        while(ita.forward()&&itb.forward()){
             int to=a.__cmp__(ita.getkey(),itb.getkey());
-            if(to==2)conda=ita.forward(),condb=itb.forward();
-            else return to;
+            if(to!=2)return to;
         }
-        return conda==condb?2:conda>condb;
+        return 2;
     }
 private:
     class node{
@@ -211,6 +199,17 @@ private:
         for(int i=0;i<used;i++)newtr[i]=std::move(tr[i]);
         size=tarsize;
         delete[] tr;tr=newtr;
+        return 0;
+    }
+    bool __reinit__(bool do_alloc){
+        node*newtr=NULL;
+        if(do_alloc){
+            newtr=new(std::nothrow)node[4];
+            if(newtr==NULL)return 1;
+            newtr->act=newtr->rb=newtr->f=newtr->s[0]=newtr->s[1]=0;
+        }
+        delete[] tr;tr=newtr;
+        used=1;size=4;
         return 0;
     }
     template<class __key>
@@ -289,17 +288,6 @@ private:
         }
         if(used<<3<=size)__resize__(size>>1);
         tr[0].s[0]=tr[0].s[1];
-        return 0;
-    }
-    bool __reinit__(bool do_alloc){
-        node*newtr=NULL;
-        if(do_alloc){
-            newtr=new(std::nothrow)node[4];
-            if(newtr==NULL)return 1;
-            newtr->act=newtr->rb=newtr->f=newtr->s[0]=newtr->s[1]=0;
-        }
-        delete[] tr;tr=newtr;
-        used=1;size=4;
         return 0;
     }
     Iterator __kth__(int k)const{
